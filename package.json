@@ -26,6 +26,8 @@
   "browserslist": {
     "production": [
       ">0.2%",
+      "last 40 chrome version",
+      "last 40 firefox version",
       "not dead",
       "not op_mini all"
     ],
@@ -34,5 +36,7 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "proxy": "http://192.168.0.121:1818",
+  "homepage": "."
 }
