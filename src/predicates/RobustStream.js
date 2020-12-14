@@ -1,18 +1,20 @@
 import {useState, useEffect} from 'react';
 import {range, rand, catcher, assert, sleep} from '../utils';
 
-const TOT_PINGS=6;
-const PING_INTV_MS=1000;
-const TOT_FRAMES=3; // https://stackoverflow.com/questions/985431/max-parallel-http-connections-in-a-browser
+const TOT_PINGS=5;
+const PING_INTV_MS=900;
+const TOT_FRAMES=2; // https://stackoverflow.com/questions/985431/max-parallel-http-connections-in-a-browser
 
 export function RobustStream({bench}) {
     let [passed_pings,set_passed_pings]=useState(0);
     let [passed_frames,set_passed_frames]=useState(0);
     let [serials,_set_serials]=useState(()=>gen_serials());
+    let [url_flipped,set_url_flipped]=useState(false);
 
     function gen_serials() {
-        let ss=range(0,TOT_FRAMES).map(()=>rand());
-        bench.log('URL args for time-consuming requests: '+JSON.stringify(ss),'debug');
+        let ss=range(0,2*TOT_FRAMES).map(()=>rand());
+        bench.log('URL args for time-consuming requests: '+JSON.stringify(ss.slice(0,TOT_FRAMES)),'debug');
+        bench.log('URL args for time-consuming requests after 1s: '+JSON.stringify(ss.slice(TOT_FRAMES)),'debug');
         return ss;
     }
 
@@ -43,9 +45,17 @@ export function RobustStream({bench}) {
             });
     },[bench,passed_pings]);
 
+    useEffect(()=>{
+        setTimeout(()=>{
+            bench.log('reloading these requests');
+            set_url_flipped(true);
+        },1200);
+    },[bench]);
+
     function frame_onload(idx,e) {
         bench.log('frame '+idx+' loaded');
         catcher(bench, ()=>{
+            assert(e.target.contentDocument,'cannot get loaded document');
             let t=e.target.contentDocument.body.textContent;
             assert(t.indexOf('LoremIpsum')===0,'bad content: '+t.substr(200));
             set_passed_frames((n)=>n+1);
@@ -57,6 +67,21 @@ export function RobustStream({bench}) {
         bench.done(false);
     }
 
+    function abandoned_onload(idx,e) {
+        bench.log('frame '+idx+' (before URL change) loaded but it should not','error');
+        catcher(bench, ()=>{
+            assert(e.target.contentDocument,'cannot get loaded document');
+            let t=e.target.contentDocument.body.textContent;
+            assert('content: '+t.substr(200),'debug');
+        });
+        bench.done(false);
+    }
+
+    function abandoned_onerror(idx) {
+        bench.log('frame '+idx+' (before URL change) load error','error');
+        bench.done(false);
+    }
+
     useEffect(()=>{
         if(passed_pings===TOT_PINGS && passed_frames===TOT_FRAMES)
             bench.done(true);
@@ -65,15 +90,19 @@ export function RobustStream({bench}) {
     return (
         <div>
             <h1>Robust Stream Check</h1>
-            <p>In this test, we request {TOT_FRAMES} URLs that will take a long time (5s) to load.</p>
+            <p>In this test, we request {TOT_FRAMES} URLs that will take a long time (3s) to load.</p>
+            <p>We will change the URL after 1.2s (when they are still loading), probably bringing a SIGPIPE to your proxy.</p>
             <p>Meanwhile, we routinely request <code>/cgi-bin/pingpong</code> and expect the proxy to serve all requests concurrently.</p>
             <p>Status: Ping check {passed_pings} / {TOT_PINGS}. Long request loaded {passed_frames} / {TOT_FRAMES}.</p>
             <div>
                 {range(0,TOT_FRAMES).map((idx)=>(
                     <iframe
-                        key={idx} title="testing"
-                        src={'/cgi-bin/repeater?'+serials[idx]+',50,LoremIpsum,100'}
-                        onLoad={(e)=>frame_onload(idx,e)} onError={()=>frame_onerror(idx)}
+                        key={(url_flipped?TOT_FRAMES:0)+idx} title="testing"
+                        src={'/cgi-bin/repeater?'+serials[url_flipped?TOT_FRAMES+idx:idx]+',-15,LoremIpsumLoremIpsum,200'}
+                        {...(url_flipped ?
+                            {onLoad: (e)=>frame_onload(idx,e), onError: ()=>frame_onerror(idx)} :
+                            {onLoad: (e)=>abandoned_onload(idx,e), onError: ()=>abandoned_onerror(idx)}
+                        )}
                     />
                 ))}
             </div>

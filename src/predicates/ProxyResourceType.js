@@ -21,6 +21,7 @@ export function ProxyResourceType({bench}) {
     function onload_text_short() {
         bench.log('loaded text short');
         catcher(bench,()=>{
+            assert(ref_text_short.current.contentDocument,'cannot get loaded document');
             let t=ref_text_short.current.contentDocument.body.textContent;
             bench.log('text short: '+t, 'debug');
             assert(t.indexOf('北京大学')!==-1, 'text short incorrect');
@@ -31,6 +32,7 @@ export function ProxyResourceType({bench}) {
     function onload_text_long() {
         bench.log('loaded text long');
         catcher(bench,()=>{
+            assert(ref_text_long.current.contentDocument,'cannot get loaded document');
             let t=ref_text_long.current.contentDocument.body.textContent;
             bench.log('text long: '+t.substr(0,30)+'... length='+t.length, 'debug');
             assert(t.substr(0,30)==='LoremIpsumLoremIpsumLoremIpsum' && t.length===500000, 'text long incorrect');

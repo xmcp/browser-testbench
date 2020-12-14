@@ -13,6 +13,8 @@ function fire_kbd_event(key,dom) {
 export function RealCsapp({bench}) {
     function iframe_load(e) {
         catcher(bench, async ()=>{
+            assert(e.target.contentDocument,'cannot get loaded document');
+
             let title=e.target.contentDocument.title;
             bench.log('iframe loaded, title = '+title);
             assert(title.indexOf('CS:APP')!==-1,'title should contains "CS:APP"');

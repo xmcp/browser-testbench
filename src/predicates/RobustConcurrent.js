@@ -21,6 +21,7 @@ export function RobustConcurrent({bench}) {
     function onload_text_short(row,e) {
         bench.log('loaded text short on row '+row);
         catcher(bench,()=>{
+            assert(e.target.contentDocument,'cannot get loaded document');
             let t=e.target.contentDocument.body.textContent;
             bench.log('text short: '+t, 'debug');
             assert(t.indexOf('北京大学')!==-1, 'text short incorrect');

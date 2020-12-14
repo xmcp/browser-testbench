@@ -20,7 +20,7 @@ export const predicates=[
     ['cache-lru', CacheLru, 5],
     ['robust-concurrent',RobustConcurrent, 8],
     ['robust-bad-request',RobustBadRequest, 4],
-    ['robust-stream',RobustStream, 7],
+    ['robust-stream',RobustStream, 8],
 ];
 
 export let benchkey_info={};

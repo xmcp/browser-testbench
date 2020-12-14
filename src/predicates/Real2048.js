@@ -13,6 +13,8 @@ function fire_kbd_event(key,dom) {
 export function Real2048({bench}) {
     function iframe_load(e) {
         catcher(bench, async ()=>{
+            assert(e.target.contentDocument,'cannot get loaded document');
+
             let title=e.target.contentDocument.title;
             bench.log('iframe loaded, title = '+title);
             assert(title==='2048','title should be "2048"');
