@@ -4,16 +4,12 @@ This is the front-end project of "Real Pages" automated testing suite in ProxyLa
 
 You are assumed to have some basic understanding of React Hooks and modern JavaScript before contributing to this project.
 
-
-
 ## Setting Up
 
 1. `apt install npm`, or manually download Node.js installer if you are using Windows.
 2. `npm install`
 3. To start a local dev server: `npm start`
 4. To build production HTML into `build/` folder: `npm run build`
-
-
 
 ## Adding New Tests
 
@@ -72,13 +68,9 @@ You are assumed to have some basic understanding of React Hooks and modern JavaS
    
 4. You may need to change the driver code to reflect changees in the total score.
 
-
-
 ## Modifying existing tests
 
 You just edit corresponding component and metadata in `src/predicates/_manifest.js`.
-
-
 
 ## APIs
 
@@ -113,7 +105,11 @@ We also provide some handy utility functions in `utils.js`:
 - `str_repeat(s, n)`
   Returns `''+s+s+...+s`.
 
+##  Future Works
 
+- Change serials to a better format (maybe sequential) so that debugging will be easier
+- Call `setblock(0)` at most once when test fails
+- Debugging hints if page JS fails to load
 
 ## License
 
@@ -132,8 +128,6 @@ We also provide some handy utility functions in `utils.js`:
 
   0. You just DO WHAT THE FUCK YOU WANT TO.
 ```
-
-
 
 **Good luck!**
 
